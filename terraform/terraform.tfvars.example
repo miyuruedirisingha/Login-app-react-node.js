@@ -1,0 +1,5 @@
+aws_region       = "ap-south-1"
+project_name     = "auth-project"
+key_pair_name    = "devops-practice.pem"
+ssh_allowed_cidr = "0.0.0.0/0"
+jwt_secret       = "change_this_to_a_long_random_secret"
