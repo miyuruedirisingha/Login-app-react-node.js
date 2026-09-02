@@ -2,12 +2,14 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION      = 'ap-south-1'
+        AWS_REGION      = 'us-east-1'
         AWS_ACCOUNT_ID  = credentials('aws-account-id')          // Jenkins credential: secret text
         ECR_BACKEND     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/auth-project-backend"
         ECR_FRONTEND    = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/auth-project-frontend"
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
         TF_VAR_jwt_secret = credentials('jwt-secret')            // Jenkins credential: secret text
+        TF_VAR_aws_region = "${AWS_REGION}"
+        TF_VAR_key_pair_name = 'devops-practice'                 // set to your actual EC2 key pair name
     }
 
     options {
