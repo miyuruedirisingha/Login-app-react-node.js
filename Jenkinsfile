@@ -43,6 +43,25 @@ pipeline {
             }
         }
 
+        stage('Terraform Apply') {
+            // Runs before the image build/push so that the ECR repositories
+            // (and the rest of the infra) exist before we try to push into them.
+            steps {
+                dir('terraform') {
+                    withCredentials([[
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-jenkins-creds'
+                    ]]) {
+                        sh '''
+                            terraform init -input=false
+                            terraform plan -input=false -out=tfplan
+                            terraform apply -input=false tfplan
+                        '''
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 sh "docker build -t ${ECR_BACKEND}:${IMAGE_TAG} -t ${ECR_BACKEND}:latest ./backend"
@@ -65,23 +84,6 @@ pipeline {
                         docker push ${ECR_FRONTEND}:${IMAGE_TAG}
                         docker push ${ECR_FRONTEND}:latest
                     """
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                dir('terraform') {
-                    withCredentials([[
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-jenkins-creds'
-                    ]]) {
-                        sh '''
-                            terraform init -input=false
-                            terraform plan -input=false -out=tfplan
-                            terraform apply -input=false tfplan
-                        '''
-                    }
                 }
             }
         }
